@@ -1,31 +1,33 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet, SafeAreaView } from 'react-native';
+import Chessboard from 'react-native-chessboardjs';
+
 export default function PlayableBoard({ route }) {
-  const { FEN } = route.params; // Get FEN from route parameters
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Chess Board FEN</Text>
-      <Text style={styles.fen}>{FEN}</Text>
-          {}
-      </View>
-    
-  );
+    const { FEN } = route.params; // Get FEN from route parameters
+
+    return (
+        <SafeAreaView style={styles.container}>
+            <Chessboard
+                position={FEN || "ppppp"} // Use the passed FEN or default to the starting position
+                 // Adjust the size as needed
+            />
+        </SafeAreaView>
+    );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  fen: {
-    fontSize: 16,
-    textAlign: 'center',
-  },
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+        marginRight: 410
+    },
+    customDarkSquareStyle: {
+        backgroundColor: '#D2691E',
+    },
+    customLightSquareStyle: {
+        backgroundColor: '#DEB887',
+    },
+
 });

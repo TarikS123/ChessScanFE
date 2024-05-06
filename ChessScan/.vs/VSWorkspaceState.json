@@ -1,6 +1,8 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\.expo",
+    "\\.expo\\metro"
   ],
   "SelectedNode": "\\PlayableBoard.js",
   "PreviewInSolutionExplorer": false
