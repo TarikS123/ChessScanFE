@@ -1,41 +1,139 @@
 import React from 'react';
-import { Button, StyleSheet, Text, View } from 'react-native';
+import { Button, StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import ImageScan from './ImageScan';
-import PlayableBoard from './PlayableBoard';
-import Chessboard from 'react-native-chessboardjs';
+import { reactNativeReanimate } from 'react-native-reanimated';
+import ImageScan from './pages/ImageScan';
+import PlayableBoard from './pages/PlayableBoard';
 import { StatusBar } from 'expo-status-bar';
+import { useNavigation } from '@react-navigation/native'; // Ensure you have this hook for navigation
+import SignupScreen from './pages/SignupScreen';
+import LoginScreen from './pages/login';
+import Profile from './pages/Profile';
+import MultiPlayerGame from './pages/MultiPlayerGame';
+import FindFriends from './pages/FindFriends';
+
+
 
 const Stack = createNativeStackNavigator();
 
 function HomeScreen({ navigation }) {
-    const boardSize = 150; // Adjust the board size as needed
-
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Open up App.js to start working on your app!</Text>
-            <Button
-                title="Scan Board"
-                onPress={() => navigation.navigate('ImageScan')}
-            />
-            <StatusBar style="auto" />
-            <View style={styles.boardContainer}>
-                <Chessboard
-                    position="pppp" // Starting position or any other FEN string
-                />
-            </View>
-        </View>
+    <View style={styles.container}>
+      <Image style={styles.image} source={require('./assets/final_logo-removebg-preview.png')} />
+      <View style={styles.container_buttons}>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('ImageScan')}>
+          <Text style={styles.buttonText}>Scan Puzzle</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('MultiPlayerGame')}>
+          <Text style={styles.buttonText}>Play with friends</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Profile')}>
+          <Text style={styles.buttonText}>My Profile</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Find Friends')}>
+          <Text style={styles.buttonText}>Browse People</Text>
+        </TouchableOpacity>
+      </View>
+     </View>
     );
 }
 
 export default function App() {
     return (
         <NavigationContainer>
-            <Stack.Navigator initialRouteName="Home">
-                <Stack.Screen name="Home" component={HomeScreen} />
-                <Stack.Screen name="ImageScan" component={ImageScan} />
-                <Stack.Screen name="PlayableBoard" component={PlayableBoard} />
+            <Stack.Navigator initialRouteName="Signup">
+                <Stack.Screen name="Signup" component={SignupScreen}
+                    options={{
+                        headerStyle: {
+                            backgroundColor: 'rgb(96, 219, 132)', // You can customize this
+                        },
+                        headerTintColor: 'rgb(0, 0, 0)',
+                        headerTitleStyle: {
+                            fontWeight: 'bold',
+                            fontSize: 20
+                        },
+                        title: 'Sign Up' // Set the title for the Signup screen
+                    }} />
+
+                <Stack.Screen name="Log In" component={LoginScreen}
+                    options={{
+                        headerStyle: {
+                            backgroundColor: 'rgb(96, 219, 132)',
+                        },
+                        headerTintColor: 'rgb(0, 0, 0)',
+                        headerTitleStyle: {
+                            fontWeight: 'bold',
+                            fontSize: 20
+                        },
+                    }} />
+                <Stack.Screen name="Home" component={HomeScreen}
+                    options={{
+                        headerStyle: {
+                            backgroundColor: 'rgb(96, 219, 132)',
+                        },
+                        headerTintColor: 'rgb(0, 0, 0)',
+                        headerTitleStyle: {
+                            fontWeight: 'bold',
+                            fontSize: 20
+                        },
+                    }} />
+                <Stack.Screen name="ImageScan" component={ImageScan}
+                    options={{
+                        headerStyle: {
+                            backgroundColor: 'rgb(96, 219, 132)',
+                        },
+                        headerTintColor: 'rgb(0, 0, 0)',
+                        headerTitleStyle: {
+                            fontWeight: 'bold',
+                            fontSize: 20
+                        },
+                    }} />
+                <Stack.Screen name="PlayableBoard" component={PlayableBoard}
+                    options={{
+                        headerStyle: {
+                            backgroundColor: 'rgb(96, 219, 132)',
+                        },
+                        headerTintColor: 'rgb(0, 0, 0)',
+                        headerTitleStyle: {
+                            fontWeight: 'bold',
+                            fontSize: 20
+                        },
+                    }} />
+                <Stack.Screen name="Profile" component={Profile}
+                    options={{
+                        headerStyle: {
+                            backgroundColor: 'rgb(96, 219, 132)',
+                        },
+                        headerTintColor: 'rgb(0, 0, 0)',
+                        headerTitleStyle: {
+                            fontWeight: 'bold',
+                            fontSize: 20
+                        },
+                    }} />
+                <Stack.Screen name="MultiPlayerGame" component={MultiPlayerGame}
+                    options={{
+                        headerStyle: {
+                            backgroundColor: 'rgb(96, 219, 132)',
+                        },
+                        headerTintColor: 'rgb(0, 0, 0)',
+                        headerTitleStyle: {
+                            fontWeight: 'bold',
+                            fontSize: 20
+                        },
+                    }} />
+                <Stack.Screen name="Find Friends" component={FindFriends}
+                    options={{
+                        headerStyle: {
+                            backgroundColor: 'rgb(96, 219, 132)',
+                        },
+                        headerTintColor: 'rgb(0, 0, 0)',
+                        headerTitleStyle: {
+                            fontWeight: 'bold',
+                            fontSize: 20
+                        },
+                    }} />
             </Stack.Navigator>
         </NavigationContainer>
     );
@@ -46,7 +144,8 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
         alignItems: 'center',
-        justifyContent: 'center',
+        
+        gap: 15
     },
     title: {
         fontSize: 18,
@@ -54,9 +153,28 @@ const styles = StyleSheet.create({
     },
     boardContainer: {
         flex: 1,
-        justifyContent: 'flex-start',
+        justifyContent: 'center',
         alignItems: 'center',
         marginTop: 50,
         marginRight: 415
     },
+    image: {
+        height:350,
+        width:350,
+        marginRight: 'auto',
+        marginLeft: 'auto',
+        position: 'relative',
+        top: 20
+    },
+    button_container: {
+        marginTop: 50
+    },
+    button: {
+        marginTop:0 ,
+        backgroundColor: '#fff'
+    },
+    container_buttons :{
+        marginTop: 20
+    }
+   
 });
