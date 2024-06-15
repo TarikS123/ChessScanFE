@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Image, ScrollView, Modal, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import URL from '../utils/connection';
 
-// Import different avatar images correctly
+
 import avatar1 from '../assets/avatars/avatari1.jpg';
 import avatar2 from '../assets/avatars/avatari2.jpg';
 import avatar3 from '../assets/avatars/avatari3.jpg';
@@ -35,7 +36,7 @@ const ProfileScreen = () => {
                 const jsonValue = await AsyncStorage.getItem('user');
                 const userData = jsonValue != null ? JSON.parse(jsonValue) : null;
                 if (userData && userData.id) {
-                    const response = await fetch(`https://44dd-77-238-198-52.ngrok-free.app/user/${userData.id}`);
+                    const response = await fetch(`${URL}/user/${userData.id}`);
                     const data = await response.json();
                     if (response.ok) {
                         setUserProfile({
@@ -69,7 +70,7 @@ const ProfileScreen = () => {
     
             if (userData && userData.id) {
                 const pictureUrl = predefinedPictures.find(p => p.id === avatarId).src;
-                const apiResponse = await fetch(`https://44dd-77-238-198-52.ngrok-free.app/user/${userData.id}/update_picture`, {
+                const apiResponse = await fetch(`${URL}/user/${userData.id}/update_picture`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'

@@ -4,6 +4,9 @@ import { Camera, CameraView, useCameraPermissions } from 'expo-camera';
 import * as FileSystem from 'expo-file-system';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { useNavigation } from '@react-navigation/native';
+import URL from '../utils/connection';
+
+
 
 export default function ImageScan() {
     const [cameraType, setCameraType] = useState('back');
@@ -35,7 +38,7 @@ export default function ImageScan() {
     };
 
     const sendImageToAPI = async (base64Image) => {
-        const apiURL = 'https://44dd-77-238-198-52.ngrok-free.app/process-image';
+        const apiURL = `${URL}/process-image`;
         try {
             const response = await fetch(apiURL, {
                 method: 'POST',

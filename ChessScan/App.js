@@ -6,7 +6,7 @@ import { reactNativeReanimate } from 'react-native-reanimated';
 import ImageScan from './pages/ImageScan';
 import PlayableBoard from './pages/PlayableBoard';
 import { StatusBar } from 'expo-status-bar';
-import { useNavigation } from '@react-navigation/native'; // Ensure you have this hook for navigation
+import { useNavigation } from '@react-navigation/native'; 
 import SignupScreen from './pages/SignupScreen';
 import LoginScreen from './pages/login';
 import Profile from './pages/Profile';
@@ -24,6 +24,9 @@ function HomeScreen({ navigation }) {
       <View style={styles.container_buttons}>
         <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('ImageScan')}>
           <Text style={styles.buttonText}>Scan Puzzle</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('PlayableBoard')}>
+          <Text style={styles.buttonText}>Browse Videos</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('MultiPlayerGame')}>
           <Text style={styles.buttonText}>Play with friends</Text>
@@ -47,14 +50,14 @@ export default function App() {
                 <Stack.Screen name="Signup" component={SignupScreen}
                     options={{
                         headerStyle: {
-                            backgroundColor: 'rgb(96, 219, 132)', // You can customize this
+                            backgroundColor: 'rgb(96, 219, 132)', 
                         },
                         headerTintColor: 'rgb(0, 0, 0)',
                         headerTitleStyle: {
                             fontWeight: 'bold',
                             fontSize: 20
                         },
-                        title: 'Sign Up' // Set the title for the Signup screen
+                        title: 'Sign Up' 
                     }} />
 
                 <Stack.Screen name="Log In" component={LoginScreen}
@@ -72,6 +75,7 @@ export default function App() {
                     options={{
                         headerStyle: {
                             backgroundColor: 'rgb(96, 219, 132)',
+                            height: 300
                         },
                         headerTintColor: 'rgb(0, 0, 0)',
                         headerTitleStyle: {

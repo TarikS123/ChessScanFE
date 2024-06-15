@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, TouchableOpacity, Image, StyleSheet, Alert } from 'react-native';
+import URL from '../utils/connection';
 
 const pieceImages = {
     'p': require('../assets/pieces/bp.png'), 'r': require('../assets/pieces/br.png'),
@@ -34,7 +35,7 @@ const ChessBoardMP = ({ gameId, userId, currentTurn }) => {
 
     const fetchGameState = async () => {
         try {
-            const response = await fetch(`https://44dd-77-238-198-52.ngrok-free.app/get_game?game_id=${gameId}`);
+            const response = await fetch(`${URL}/get_game?game_id=${gameId}`);
             const data = await response.json();
             if (response.ok) {
                 setBoard(decodeFen(data.game_state));
@@ -49,16 +50,16 @@ const ChessBoardMP = ({ gameId, userId, currentTurn }) => {
     useEffect(() => {
         fetchGameState();
         if (currentTurn !== userId) {
-            const interval = setInterval(fetchGameState, 3000);  // Poll every 3 seconds
+            const interval = setInterval(fetchGameState, 3000);
             return () => clearInterval(interval);
         }
     }, [currentTurn, gameId, userId]);
 
     const handleMove = async (newBoard) => {
-        const fen = arrayToFen(newBoard);  // Convert the 2D array to FEN before sending
+        const fen = arrayToFen(newBoard);  
         try {   
             console.log("Sending FEN to server:", fen);
-            const response = await fetch(`https://44dd-77-238-198-52.ngrok-free.app/make_move`, {
+            const response = await fetch(`${URL}/make_move`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -70,7 +71,7 @@ const ChessBoardMP = ({ gameId, userId, currentTurn }) => {
                 })
             });
             if (response.ok) {
-                fetchGameState();  // Refresh the board state after a move
+                fetchGameState();  
             } else {
                 const data = await response.json();
                 throw new Error(data.error || "Failed to make move");

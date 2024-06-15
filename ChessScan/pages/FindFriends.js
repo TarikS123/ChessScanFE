@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Alert, Image, FlatList, TouchableOpacity, TextInput } from 'react-native';
+import URL from '../utils/connection';
 
 export default function FindFriends() {
     const [users, setUsers] = useState([]);
@@ -18,7 +19,7 @@ export default function FindFriends() {
 
     const fetchUsers = async () => {
         try {
-            const response = await fetch(`https://44dd-77-238-198-52.ngrok-free.app/users?username=${search}`);
+            const response = await fetch(`${URL}/users?username=${search}`);
             const data = await response.json();
             setUsers(data);
         } catch (error) {
@@ -40,7 +41,7 @@ export default function FindFriends() {
                 keyExtractor={item => item.id.toString()}
                 renderItem={({ item }) => (
                 <View style={styles.box}>
-            {/* Ensure that item.picture is mapped correctly */}
+            
                 <Image style={styles.image} source={avatarMap[item.picture]} />
                 <View style={styles.boxContent}>
                 <Text style={styles.title}>{item.username}</Text>

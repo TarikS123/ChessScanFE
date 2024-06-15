@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, Text, StyleSheet, Alert } from 'react-native';
+import URL from '../utils/connection';
+
 
 const SignupScreen = ({ navigation }) => {
     const [username, setUsername] = useState('');
@@ -13,7 +15,7 @@ const SignupScreen = ({ navigation }) => {
             password
         };
 
-        fetch('https://44dd-77-238-198-52.ngrok-free.app/signup', {
+        fetch(`${URL}/signup`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -24,8 +26,8 @@ const SignupScreen = ({ navigation }) => {
             .then(data => {
                 if (data.message) {
                     Alert.alert('Success', data.message);
-                    // Optionally navigate to another screen
-                    navigation.navigate('Log In');  // Assuming 'Home' is the next screen after signup
+                    
+                    navigation.navigate('Log In');  
                 } else {
                     throw new Error(data.error || 'Unknown error');
                 }

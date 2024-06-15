@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, Text, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import URL from '../utils/connection';
 
 const LoginScreen = ({ navigation }) => {
     const [username, setUsername] = useState('');
@@ -11,8 +12,9 @@ const LoginScreen = ({ navigation }) => {
             username,
             password
         };
+        let url = URL;
 
-        fetch('https://44dd-77-238-198-52.ngrok-free.app/login', {
+        fetch(`${URL}/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -51,6 +53,9 @@ const LoginScreen = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
+            <Text>
+                {URL}
+            </Text>
             <TextInput
                 style={styles.input}
                 placeholder="Username"

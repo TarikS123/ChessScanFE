@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, SafeAreaView, Text, View, TextInput, FlatList, Image, Linking } from 'react-native';
-import Chessboard from '../components/Board'; // Adjust the import path as necessary
+import Chessboard from '../components/Board'; 
+import URL from '../utils/connection';
+
 
 export default function PlayableBoard({ route }) {
     const [fen, setFen] = useState(route.params?.FEN || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
@@ -12,13 +14,13 @@ export default function PlayableBoard({ route }) {
     useEffect(() => {
         const encodedFen = encodeURIComponent(fen);
         setVideos([]);
-        fetch(`https://44dd-77-238-198-52.ngrok-free.app/proxy?fen=${encodedFen}`)
+        fetch(`${URL}/proxy?fen=${encodedFen}`)
             .then(response => response.json())
             .then(data => {
-                const alwaysArray = [].concat(data); // Ensures data is treated as an array
-                const limitedData = alwaysArray.slice(0, 300); // Limit to 1000 videos
+                const alwaysArray = [].concat(data); 
+                const limitedData = alwaysArray.slice(0, 300); // SKONTAJ KAKO DA NE BUDE OGRANICENO NA 300 VIDEA
                 setVideos(limitedData);
-                setFilteredVideos(limitedData); // Initialize with all videos
+                setFilteredVideos(limitedData); 
                 setSearchQuery('');
             })
             .catch(error => console.error('Error fetching video data:', error));
@@ -26,13 +28,13 @@ export default function PlayableBoard({ route }) {
 
     useEffect(() => {
         const lowercasedQuery = searchQuery;
-        let filtered = []; // Create an empty array to hold the filtered results
+        let filtered = []; 
 
         videos.forEach(video => {
             if (video.title && video.uploader)
                 if (video.title.includes(lowercasedQuery) ||
                     video.uploader.includes(lowercasedQuery)) {
-                    filtered.push(video); // Add video to filtered list if it matches the search query
+                    filtered.push(video);
                 }
         });
 

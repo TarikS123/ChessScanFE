@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, Button, Text, Alert, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import ChessBoardMP from './ChessBoardMP'; // Ensure the path is correct
+import ChessBoardMP from './ChessBoardMP'; 
+import URL from '../utils/connection';
+
+
 
 const MultiPlayerGame = () => {
     const [gameId, setGameId] = useState(null);
@@ -27,19 +30,19 @@ const MultiPlayerGame = () => {
         }
         setLoading(true);
         try {
-            const response = await fetch('https://44dd-77-238-198-52.ngrok-free.app/create_game', {
+            const response = await fetch(`${URL}/create_game`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    player1_id: userId  // Make sure `userId` is set correctly from AsyncStorage
+                    player1_id: userId  
                 })
             });
             const data = await response.json();
             if (response.ok) {
                 setGameId(data.game_id);
-                setCurrentTurn(data.current_turn);  // Assuming this is also returned by the API
+                setCurrentTurn(data.current_turn);  
                 Alert.alert("Match found", data.message);
             } else {
                 throw new Error(data.message || "Failed to find match");
