@@ -28,13 +28,13 @@ const ChessBoardMP = ({ gameId, userId }) => {
 
     const fetchGameState = async () => {
         try {
-            const response = await fetch(`${URL}/get_game?game_id=${gameId}`);
+            const response = await fetch(`${URL}/get_game?game_id=${gameId}&player_id=${userId}`);
             const data = await response.json();
             if (response.ok) {
                 game.load(data.game_state);
-                setPlayerColor(data.player_color);
-                setCurrentTurn(data.current_turn); // Assume this info is sent by the server
-                setBoard(decodeFen(game.fen()));
+                setPlayerColor(data.player_color);  // Assuming this is provided by your server
+                setCurrentTurn(data.current_turn);
+                setBoard(decodeFen(game.fen(), data.player_color));  // Adjust decodeFen to consider player_color
             } else {
                 throw new Error(data.error || "Failed to fetch game state");
             }
@@ -43,7 +43,7 @@ const ChessBoardMP = ({ gameId, userId }) => {
         }
     };
 
-    const decodeFen = (fen) => {
+    const decodeFen = (fen, playerColor) => {
         let rows = fen.split(' ')[0].split('/');
         if (playerColor === 'black') {
             rows = rows.reverse().map(row => row.split('').reverse().join(''));
@@ -63,6 +63,7 @@ const ChessBoardMP = ({ gameId, userId }) => {
             return rowArr;
         });
     };
+    
 
     const handleTilePress = async (rowIndex, colIndex) => {
         if (currentTurn !== userId) {
@@ -119,11 +120,11 @@ const ChessBoardMP = ({ gameId, userId }) => {
             }
         } catch (error) {
             Alert.alert("Error", error.message);
-            game.undo(); // Revert the last move if the server update fails
-            setBoard(decodeFen(game.fen()));
+            game.undo();  // Revert the last move if the server update fails
+            setBoard(decodeFen(game.fen(), playerColor));
         }
     };
-
+    
     const positionToAlgebraic = (row, col) => {
         const file = String.fromCharCode('a'.charCodeAt(0) + col);
         const rank = 8 - row;
