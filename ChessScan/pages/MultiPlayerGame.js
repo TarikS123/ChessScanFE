@@ -56,7 +56,7 @@ const MultiPlayerGame = () => {
     
 
     return (
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <View style={{  alignItems: 'center', justifyContent: 'center' }}>
             {loading ? <ActivityIndicator size="large" color="#0000ff" /> : (
                 <>
                     <Button title="Find Match" onPress={findMatch} disabled={!userId} />

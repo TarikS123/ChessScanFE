@@ -23,13 +23,13 @@ function HomeScreen({ navigation }) {
       <Image style={styles.image} source={require('./assets/final_logo-removebg-preview.png')} />
       <View style={styles.container_buttons}>
         <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('ImageScan')}>
-          <Text style={styles.buttonText}>Scan Puzzle</Text>
+          <Text style={styles.buttonText}>Scan a Board</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('PlayableBoard')}>
           <Text style={styles.buttonText}>Browse Videos</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('MultiPlayerGame')}>
-          <Text style={styles.buttonText}>Play with friends</Text>
+          <Text style={styles.buttonText}>Quick Game</Text>
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Profile')}>

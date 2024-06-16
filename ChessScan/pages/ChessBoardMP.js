@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, TouchableOpacity, Image, StyleSheet, Alert } from 'react-native';
 import URL from '../utils/connection';
+import { Chess } from 'chess.js';
 
 const pieceImages = {
     'p': require('../assets/pieces/bp.png'), 'r': require('../assets/pieces/br.png'),
@@ -11,34 +12,29 @@ const pieceImages = {
     'Q': require('../assets/pieces/wq.png'), 'K': require('../assets/pieces/wk.png'),
 };
 
-const decodeFen = (fen) => {
-    const rows = fen.split(' ')[0].split('/');
-    return rows.map(row => {
-        const rowArr = [];
-        for (let i = 0; i < row.length; i++) {
-            const char = row[i];
-            if (isNaN(char)) {
-                rowArr.push(char);
-            } else {
-                for (let j = 0; j < parseInt(char, 10); j++) {
-                    rowArr.push(null);
-                }
-            }
-        }
-        return rowArr;
-    });
-};
-
-const ChessBoardMP = ({ gameId, userId, currentTurn }) => {
+const ChessBoardMP = ({ gameId, userId }) => {
+    const [game, setGame] = useState(new Chess());
     const [board, setBoard] = useState([]);
     const [selectedPosition, setSelectedPosition] = useState(null);
+    const [availableMoves, setAvailableMoves] = useState([]);
+    const [playerColor, setPlayerColor] = useState(null);
+    const [currentTurn, setCurrentTurn] = useState(null); // Track who's turn it is
+
+    useEffect(() => {
+        fetchGameState();
+        const interval = setInterval(fetchGameState, 3000);
+        return () => clearInterval(interval);
+    }, [gameId, userId]);
 
     const fetchGameState = async () => {
         try {
             const response = await fetch(`${URL}/get_game?game_id=${gameId}`);
             const data = await response.json();
             if (response.ok) {
-                setBoard(decodeFen(data.game_state));
+                game.load(data.game_state);
+                setPlayerColor(data.player_color);
+                setCurrentTurn(data.current_turn); // Assume this info is sent by the server
+                setBoard(decodeFen(game.fen()));
             } else {
                 throw new Error(data.error || "Failed to fetch game state");
             }
@@ -47,18 +43,65 @@ const ChessBoardMP = ({ gameId, userId, currentTurn }) => {
         }
     };
 
-    useEffect(() => {
-        fetchGameState();
-        if (currentTurn !== userId) {
-            const interval = setInterval(fetchGameState, 3000);
-            return () => clearInterval(interval);
+    const decodeFen = (fen) => {
+        let rows = fen.split(' ')[0].split('/');
+        if (playerColor === 'black') {
+            rows = rows.reverse().map(row => row.split('').reverse().join(''));
         }
-    }, [currentTurn, gameId, userId]);
+        return rows.map(row => {
+            const rowArr = [];
+            for (let i = 0; i < row.length; i++) {
+                const char = row[i];
+                if (isNaN(char)) {
+                    rowArr.push(char);
+                } else {
+                    for (let j = 0; j < parseInt(char, 10); j++) {
+                        rowArr.push(null);
+                    }
+                }
+            }
+            return rowArr;
+        });
+    };
 
-    const handleMove = async (newBoard) => {
-        const fen = arrayToFen(newBoard);  
-        try {   
-            console.log("Sending FEN to server:", fen);
+    const handleTilePress = async (rowIndex, colIndex) => {
+        if (currentTurn !== userId) {
+            Alert.alert("Not Your Turn", "Please wait for your turn.");
+            return;
+        }
+
+        if (playerColor === 'black') {
+            rowIndex = 7 - rowIndex;
+            colIndex = 7 - colIndex;
+        }
+        const position = positionToAlgebraic(rowIndex, colIndex);
+        const moves = game.moves({ square: position, verbose: true });
+
+        if (selectedPosition && (rowIndex === selectedPosition[0] && colIndex === selectedPosition[1])) {
+            setSelectedPosition(null);
+            setAvailableMoves([]);
+        } else {
+            if (selectedPosition) {
+                const move = createMoveObject(selectedPosition, rowIndex, colIndex);
+                if (game.move(move)) {
+                    setBoard(decodeFen(game.fen()));
+                    await handleMove(game.fen());
+                    setSelectedPosition(null);
+                    setAvailableMoves([]);
+                    setCurrentTurn(game.turn() === 'w' ? 'white' : 'black'); // Update turn based on chess.js state
+                } else {
+                    Alert.alert("Invalid Move", "This move is not allowed.", [{ text: "OK" }]);
+                    game.undo();
+                }
+            } else {
+                setSelectedPosition([rowIndex, colIndex]);
+                setAvailableMoves(moves.map(move => move.to));
+            }
+        }
+    };
+
+    const handleMove = async (fen) => {
+        try {
             const response = await fetch(`${URL}/make_move`, {
                 method: 'POST',
                 headers: {
@@ -70,58 +113,45 @@ const ChessBoardMP = ({ gameId, userId, currentTurn }) => {
                     new_state: fen,
                 })
             });
-            if (response.ok) {
-                fetchGameState();  
-            } else {
+            if (!response.ok) {
                 const data = await response.json();
                 throw new Error(data.error || "Failed to make move");
             }
         } catch (error) {
             Alert.alert("Error", error.message);
+            game.undo(); // Revert the last move if the server update fails
+            setBoard(decodeFen(game.fen()));
         }
     };
 
-    const handleTilePress = (rowIndex, colIndex) => {
-        const currentPiece = board[rowIndex][colIndex];
-        if (selectedPosition) {
-            const [selectedRow, selectedCol] = selectedPosition;
-            const selectedPiece = board[selectedRow][selectedCol];
-            const newBoard = [...board.map(row => [...row])];
-            newBoard[rowIndex][colIndex] = selectedPiece;
-            newBoard[selectedRow][selectedCol] = null;
-            setBoard(newBoard);
-            handleMove(newBoard);
-            setSelectedPosition(null);
-        } else if (currentPiece) {
-            setSelectedPosition([rowIndex, colIndex]);
-        }
+    const positionToAlgebraic = (row, col) => {
+        const file = String.fromCharCode('a'.charCodeAt(0) + col);
+        const rank = 8 - row;
+        return `${file}${rank}`;
     };
 
-    const arrayToFen = (board) => {
-        let fen = "";
-        for (let i = 0; i < board.length; i++) {
-            let emptyCount = 0;
-            for (let j = 0; j < board[i].length; j++) {
-                const cell = board[i][j];
-                if (cell === null) {
-                    emptyCount++;
-                } else {
-                    if (emptyCount > 0) {
-                        fen += emptyCount;
-                        emptyCount = 0;
-                    }
-                    fen += cell;
-                }
-            }
-            if (emptyCount > 0) {
-                fen += emptyCount;
-            }
-            if (i < board.length - 1) fen += "/";
-        }
-        return fen;
+    const createMoveObject = (fromPosition, toRow, toCol) => {
+        return {
+            from: positionToAlgebraic(fromPosition[0], fromPosition[1]),
+            to: positionToAlgebraic(toRow, toCol),
+            promotion: 'q'  // Default to promoting to a queen
+        };
     };
-    
-    
+
+    const getTileColor = (rowIndex, colIndex) => {
+        if (playerColor === 'black') {
+            rowIndex = 7 - rowIndex;
+            colIndex = 7 - colIndex;
+        }
+        const position = positionToAlgebraic(rowIndex, colIndex);
+        if (selectedPosition && position === positionToAlgebraic(selectedPosition[0], selectedPosition[1])) {
+            return 'blue'; // Highlight the selected piece
+        } else if (availableMoves.includes(position)) {
+            return game.get(position) ? 'red' : 'pink'; // Highlight available moves
+        } else {
+            return (rowIndex + colIndex) % 2 === 0 ? 'white' : 'gray'; // Normal tile colors
+        }
+    };
 
     return (
         <View style={styles.board}>
@@ -132,7 +162,7 @@ const ChessBoardMP = ({ gameId, userId, currentTurn }) => {
                         onPress={() => handleTilePress(rowIndex, colIndex)}
                         style={[
                             styles.tile,
-                            { backgroundColor: (rowIndex + colIndex) % 2 === 0 ? 'white' : 'gray' }
+                            { backgroundColor: getTileColor(rowIndex, colIndex) }
                         ]}
                     >
                         {cell && <Image source={pieceImages[cell]} style={styles.piece} />}
@@ -147,20 +177,22 @@ const styles = StyleSheet.create({
     board: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        width: 320,
-        height: 320,
+        width: 404,
+        aspectRatio: 1,
+        borderWidth: 2,
+        borderColor: 'black',
     },
     tile: {
-        width: 40,
-        height: 40,
-        justifyContent: 'center',
+        height: 50,
+        width: 50,
         alignItems: 'center',
-        borderWidth: 1,
+        justifyContent: 'center',
     },
     piece: {
-        width: 36,
-        height: 36,
-    }
+        width: 40,
+        height: 40,
+        resizeMode: 'contain',
+    },
 });
 
 export default ChessBoardMP;
