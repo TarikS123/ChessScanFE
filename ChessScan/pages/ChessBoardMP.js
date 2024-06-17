@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, TouchableOpacity, Image, StyleSheet, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Image, StyleSheet, Alert } from 'react-native';
 import URL from '../utils/connection';
 import { Chess } from 'chess.js';
 
@@ -17,14 +17,18 @@ const ChessBoardMP = ({ gameId, userId }) => {
     const [board, setBoard] = useState([]);
     const [selectedPosition, setSelectedPosition] = useState(null);
     const [availableMoves, setAvailableMoves] = useState([]);
-    const [playerColor, setPlayerColor] = useState(null);
+    const [playerColor, setPlayerColor] = useState('white');
     const [currentTurn, setCurrentTurn] = useState(null); // Track who's turn it is
 
     useEffect(() => {
+
         fetchGameState();
-        const interval = setInterval(fetchGameState, 3000);
+        console.log(`Board state updated: ${game.fen()}, Player color: ${playerColor}`);
+        const interval = setInterval(fetchGameState, 2000);
         return () => clearInterval(interval);
     }, [gameId, userId]);
+
+
 
     const fetchGameState = async () => {
         try {
@@ -85,7 +89,7 @@ const ChessBoardMP = ({ gameId, userId }) => {
             if (selectedPosition) {
                 const move = createMoveObject(selectedPosition, rowIndex, colIndex);
                 if (game.move(move)) {
-                    setBoard(decodeFen(game.fen()));
+                    //setBoard(decodeFen(game.fen()));
                     await handleMove(game.fen());
                     setSelectedPosition(null);
                     setAvailableMoves([]);
@@ -121,7 +125,8 @@ const ChessBoardMP = ({ gameId, userId }) => {
         } catch (error) {
             Alert.alert("Error", error.message);
             game.undo();  // Revert the last move if the server update fails
-            setBoard(decodeFen(game.fen(), playerColor));
+            //setBoard(decodeFen(game.fen(), playerColor));
+            setBoard(fen);
         }
     };
     
@@ -170,6 +175,7 @@ const ChessBoardMP = ({ gameId, userId }) => {
                     </TouchableOpacity>
                 ))
             )}
+            <Text>{playerColor}</Text>
         </View>
     );
 };
